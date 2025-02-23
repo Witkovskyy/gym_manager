@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from db_setup import engine, Membership
 from datetime import datetime
@@ -15,14 +16,19 @@ with open("memberships.txt","r", encoding="utf-8") as file:
             membership_duration_in_days = int(data[2]),
             price = int(data[3])
         )
+        stmt = select(Membership).filter_by(membership_id=membership.membership_id)
 
-        try:
-            session.add(membership)
-        except:
-            session.rollback()
-            raise
+        membership_obj = session.scalars(stmt).all()
+        if membership_obj == []:
+            try:
+                session.add(membership)
+            except:
+                session.rollback()
+                raise
+            else:
+                session.commit()
         else:
-            session.commit()
+            continue
 
 
 

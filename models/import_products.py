@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from db_setup import engine, Products
 from datetime import datetime
@@ -16,14 +17,25 @@ with open("sample_products.txt", "r", encoding="utf-8") as file:
             product_quantity = int(data[3]),
             products_sold = int(data[4])
         )
+        stmt = select(Products).filter_by(product_name=product.product_name)
 
-        try:
-            session.add(product)
-        except:
-            session.rollback()
-            raise
+        product_obj = session.scalars(stmt).all()
+        if product_obj == []:
+            try:
+                session.add(product)
+            except:
+                session.rollback()
+                raise
+            else:
+                session.commit()
         else:
-            session.commit()
+            continue
+        
+
+
+
+
+       
 
 # Zapisujemy dane w bazie
 session.commit()

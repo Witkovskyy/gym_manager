@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from db_setup import engine, Client
 from datetime import datetime
@@ -21,15 +22,19 @@ with open("sample_data_clients.txt", "r", encoding="utf-8") as file:
             last_visit=datetime.strptime(data[8], "%Y-%m-%d").date(),
             comments=data[9]
         )
-        
-        # session.add(client)
-        try:
-            session.add(client)
-        except:
-            session.rollback()
-            raise
+        stmt = select(Client).filter_by(client_id=client.client_id)
+
+        client_obj = session.scalars(stmt).all()
+        if client_obj == []:
+            try:
+                session.add(client)
+            except:
+                session.rollback()
+                raise
+            else:
+                session.commit()
         else:
-            session.commit()
+            continue
         
 
 # Zapisujemy dane w bazie
