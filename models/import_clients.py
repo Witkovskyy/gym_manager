@@ -5,7 +5,7 @@ from datetime import datetime
 Session = sessionmaker(bind=engine)
 session = Session()
 
-with open("sample_data.txt", "r", encoding="utf-8") as file:
+with open(".txt", "r", encoding="utf-8") as file:
     for line in file:
         data = line.strip().split(",")
         
@@ -22,7 +22,15 @@ with open("sample_data.txt", "r", encoding="utf-8") as file:
             comments=data[9]
         )
         
-        session.add(client)
+        # session.add(client)
+        try:
+            session.add(client)
+        except:
+            session.rollback()
+            raise
+        else:
+            session.commit()
+        
 
 # Zapisujemy dane w bazie
 session.commit()
