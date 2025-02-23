@@ -5,7 +5,7 @@ from datetime import datetime
 Session = sessionmaker(bind=engine)
 session = Session()
 
-with open(".txt", "r", encoding="utf-8") as file:
+with open("sample_data_clients.txt", "r", encoding="utf-8") as file:
     for line in file:
         data = line.strip().split(",")
         

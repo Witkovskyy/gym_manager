@@ -1,0 +1,5 @@
+1,Open,30,210
+2,Student,30,180
+3,Senior,30,180
+4,Półroczny,180,1020
+5,Roczny,365,1900

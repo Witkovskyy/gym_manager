@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 #Baza pod db
@@ -41,7 +41,7 @@ class Products(Base):
     __tablename__ = "products"
     product_id = Column(Integer, primary_key=True)
     product_name = Column(String, nullable=False)
-    product_price = Column(Integer, nullable=False)
+    product_price = Column(Float, nullable=False)
     product_quantity = Column(Integer, nullable=False)
     products_sold = Column(Integer, nullable=False)
 
