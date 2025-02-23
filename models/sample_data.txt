@@ -1,0 +1,5 @@
+1,Tak,Nie,Jan,Kowalski,Miesięczny,2024-02-01,2024-03-01,2024-02-21,Brak uwag
+2,Tak,Nie,Anna,Nowak,Miesięczny,2024-02-15,2024-03-15,2024-02-20,Brak uwag
+3,Tak,Nie,Piotr,Wiśniewski,Półroczny,2023-10-01,2024-04-01,2024-02-19,Brak uwag
+4,Tak,Nie,Katarzyna,Mazur,Roczny,2024-01-01,2025-01-01,2024-02-18,Brak uwag
+5,Tak,Nie,Tomasz,Lewandowski,Jednorazowe,2024-02-22,2024-02-22,2024-02-22,Brak uwag
