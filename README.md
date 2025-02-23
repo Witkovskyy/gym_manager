@@ -11,4 +11,8 @@ This project uses:
 - PyQt6 v. 6.8.1 - For UI purposes
 
 I'm using Python 3.12.2.
+
+
+
+Entries in example db's are randomly generated for debugging purposes.
 #
