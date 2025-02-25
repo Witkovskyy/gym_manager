@@ -1,7 +1,34 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
+from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit
+from PyQt6.QtGui import QAction 
 from datetime import date
+from clients_window import AddClientPopup
+
+# class AddClientPopup(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle("Dodaj klienta")
+#         self.setGeometry(200,200,400,600)
+
+#         add_client_layout = QVBoxLayout()
+
+#         self.label = QLabel("Panel dodawania klienta")
+#         add_client_layout.addWidget(self.label)
+
+#         # Inputy do wprowadzania danych klienta
+
+#         #Imię
+#         self.label = QLabel("Imię", self)
+#         self.label.move(50,50)
+
+#         self.text_input = QLineEdit(self)
+#         self.text_input.setGeometry(50, 80, 200, 30)
+
+#         #Nazwisko
+
+
+
 
 class GymApp(QMainWindow):
     def __init__(self):
@@ -17,12 +44,14 @@ class GymApp(QMainWindow):
 
         file_menu.addAction(exit_action)
 
+        # Status bar z datą w lewym dolnym
         self.setStatusBar(QStatusBar(self))
         self.statusBar().showMessage(f"{date.today().strftime("%d-%m-%Y")}")
 
         layout = QVBoxLayout()
 
-        self.button = QPushButton("Dodaj klienta")
+        self.button = QPushButton("Dodaj klienta", self)
+        self.button.clicked.connect(self.show_add_client)
         layout.addWidget(self.button)
 
         self.button = QPushButton("Usuń klienta")
@@ -31,6 +60,12 @@ class GymApp(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
+    # Funkcja wywołująca AddClientPopup
+    def show_add_client(self):
+        show_popup = AddClientPopup()
+        show_popup.exec()
+
 
 app = QApplication([])
 window = GymApp()
