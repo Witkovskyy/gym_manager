@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from pathlib import Path
 
 #Baza pod db
 Base = declarative_base()
@@ -50,7 +51,9 @@ class Products(Base):
 
 
 # Inicjalizacja bazy
-engine = create_engine("sqlite:///gym_manager.db", echo=False)
+base_dir = Path(__file__).resolve().parent.parent
+db_path = base_dir / "gym_manager.db"
+engine = create_engine(f"sqlite:///{db_path}")
 
 #Tworzenie tabel
 Base.metadata.create_all(engine)

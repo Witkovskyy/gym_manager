@@ -6,20 +6,25 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
-parent_path = str(Path(__file__).resolve().parent.parent)
-sys.path.append(parent_path)
-sys.path.append(str(Path(__file__).resolve().parent / "models"))
-from db_setup import engine, Membership, membership
+# parent_path = str(Path(__file__).resolve().parent.parent)
+# sys.path.append(parent_path)
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+from models.db_setup import engine, Membership
 
 
 class MembershipsGetter():
-    def getMemberships():
+    def getMemberships(self):
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        stmt = select(Membership.membership_name)
+        stmt = select(Membership)
         membership_obj = session.scalars(stmt).all()
-        print(membership_obj)
+        # print(membership_obj)
+        membership_names = [m.membership_name for m in membership_obj]
+
+        # print(membership_obj)
+
+        return membership_names
 
 class AddClientPopup(QDialog):
     def __init__(self):
@@ -55,7 +60,7 @@ class AddClientPopup(QDialog):
 
         self.combo_box_underage = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_underage, 4, 0)
-        self.combo_box_rodo.addItems(["Tak", "Nie"])
+        self.combo_box_underage.addItems(["Tak", "Nie"])
 
         #Imię
         self.label = QLabel("Imię", self)
@@ -82,8 +87,9 @@ class AddClientPopup(QDialog):
 
         self.combo_box_membership = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_membership, 10, 0)
-        memberships = MembershipsGetter()
-        self.combo_box_rodo.addItems(["Tak", "Nie"])
+        memberships = MembershipsGetter().getMemberships()
+        # print(memberships)
+        self.combo_box_membership.addItems(memberships)
 
 
 
