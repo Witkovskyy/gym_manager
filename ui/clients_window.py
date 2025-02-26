@@ -1,6 +1,7 @@
 import sys
+from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
-from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QComboBox, QGridLayout
+from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QComboBox, QGridLayout, QDateEdit
 from PyQt6.QtGui import QAction 
 from datetime import date
 from sqlalchemy import select
@@ -25,6 +26,11 @@ class MembershipsGetter():
         # print(membership_obj)
 
         return membership_names
+class MembershipDurationGetter():
+    def getMembershipDuration(self):
+
+
+        return True
 
 class AddClientPopup(QDialog):
     def __init__(self):
@@ -60,7 +66,7 @@ class AddClientPopup(QDialog):
 
         self.combo_box_underage = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_underage, 4, 0)
-        self.combo_box_underage.addItems(["Tak", "Nie"])
+        self.combo_box_underage.addItems(["Nie", "Tak"])
 
         #Imię
         self.label = QLabel("Imię", self)
@@ -91,9 +97,40 @@ class AddClientPopup(QDialog):
         # print(memberships)
         self.combo_box_membership.addItems(memberships)
 
+        # Początek karnetu
+        self.label = QLabel("Data początkowa karnetu", self)
+        add_client_layout.addWidget(self.label, 11, 0)
 
+        self.date_edit = QDateEdit()
+        self.date_edit.setCalendarPopup(True)
+        self.date_edit.setDate(QDate.currentDate())
+        add_client_layout.addWidget(self.date_edit, 12, 0)
+        self.date_edit.dateChanged.connect(self.add_days)
+
+        # Koniec karnetu
+        self.label = QLabel("Data końcowa karnetu", self)
+        add_client_layout.addWidget(self.label, 13, 0)
+
+        self.date_edit_expiry = QDateEdit()
+        self.date_edit_expiry.setCalendarPopup(True)
+        self.date_edit_expiry.setDate(QDate.currentDate().addDays(30))
+        add_client_layout.addWidget(self.date_edit_expiry, 14, 0)
 
         self.setLayout(add_client_layout)
+
+
+    def add_days(self):
+        start_date = self.date_edit.date()
+        membership_type = self.combo_box_membership.currentText()
+        if membership_type == "Półroczny":
+            expiry_date = start_date.addDays(180)
+        else:
+            expiry_date = start_date.addDays(30)
+        # return expiry_date
+        self.date_edit_expiry.setDate(expiry_date) 
+
+
+        
 
 
 
