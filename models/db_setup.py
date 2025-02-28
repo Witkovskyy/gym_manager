@@ -8,7 +8,7 @@ Base = declarative_base()
 #Klienci
 class Client(Base):
     __tablename__ = 'clients'
-    client_id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, primary_key=True, autoincrement=True)
     rodo = Column(String, nullable=False)
     underage = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
@@ -18,6 +18,16 @@ class Client(Base):
     membership_expiry = Column(Date, nullable=True)
     last_visit = Column(Date, nullable=True)
     comments = Column(String, nullable=True)
+
+    def __init__(self, is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comment=None):
+        self.is_rodo = is_rodo
+        self.is_underage = is_underage
+        self.first_name = first_name
+        self.last_name = last_name
+        self.membership_type = membership_type
+        self.start_date = start_date
+        self.expiry_date = expiry_date
+        self.comment = comment
 
     def __repr__(self) -> str:
         return(f"Client(id={self.client_id},first name={self.first_name}, last name={self.last_name}," 

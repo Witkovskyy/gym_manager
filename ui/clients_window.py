@@ -10,7 +10,7 @@ from pathlib import Path
 # parent_path = str(Path(__file__).resolve().parent.parent)
 # sys.path.append(parent_path)
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from models.db_setup import engine, Membership
+from models.db_setup import engine, Membership, Client
 
 
 class MembershipsGetter():
@@ -24,7 +24,7 @@ class MembershipsGetter():
         membership_names = [m.membership_name for m in membership_obj]
 
         # print(membership_obj)
-
+        session.close()
         return membership_names
 class MembershipDurationGetter():
     def getMembershipDuration(self):
@@ -59,6 +59,7 @@ class AddClientPopup(QDialog):
         self.combo_box_rodo = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_rodo, 2, 0)
         self.combo_box_rodo.addItems(["Tak", "Nie"])
+        self.combo_box_rodo.setCurrentText("Tak")
 
         #Nieletni
         self.label = QLabel("Czy klient jest nieletni", self)
@@ -67,6 +68,8 @@ class AddClientPopup(QDialog):
         self.combo_box_underage = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_underage, 4, 0)
         self.combo_box_underage.addItems(["Nie", "Tak"])
+        self.combo_box_rodo.setCurrentText("Nie")
+
 
         #Imię
         self.label = QLabel("Imię", self)
@@ -74,8 +77,8 @@ class AddClientPopup(QDialog):
 
         # self.label.move(50,50)
 
-        self.text_input = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input, 6, 0)
+        self.text_input_name = QLineEdit(self)
+        add_client_layout.addWidget(self.text_input_name, 6, 0)
         # self.text_input.setGeometry(50, 70, 200, 30)
 
         #Nazwisko
@@ -83,8 +86,8 @@ class AddClientPopup(QDialog):
         add_client_layout.addWidget(self.label, 7, 0)
         # self.label.move(50,110)
 
-        self.text_input = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input, 8, 0)
+        self.text_input_last_name = QLineEdit(self)
+        add_client_layout.addWidget(self.text_input_last_name, 8, 0)
         # self.text_input.setGeometry(50, 130, 200, 30)
 
         #Typ karnetu
@@ -96,16 +99,18 @@ class AddClientPopup(QDialog):
         memberships = MembershipsGetter().getMemberships()
         # print(memberships)
         self.combo_box_membership.addItems(memberships)
+        self.combo_box_rodo.setCurrentText(memberships[0])
+
 
         # Początek karnetu
         self.label = QLabel("Data początkowa karnetu", self)
         add_client_layout.addWidget(self.label, 11, 0)
 
-        self.date_edit = QDateEdit()
-        self.date_edit.setCalendarPopup(True)
-        self.date_edit.setDate(QDate.currentDate())
-        add_client_layout.addWidget(self.date_edit, 12, 0)
-        self.date_edit.dateChanged.connect(self.add_days)
+        self.date_edit_start = QDateEdit()
+        self.date_edit_start.setCalendarPopup(True)
+        self.date_edit_start.setDate(QDate.currentDate())
+        add_client_layout.addWidget(self.date_edit_start, 12, 0)
+        self.date_edit_start.dateChanged.connect(self.add_days)
 
         # Koniec karnetu
         self.label = QLabel("Data końcowa karnetu", self)
@@ -116,11 +121,26 @@ class AddClientPopup(QDialog):
         self.date_edit_expiry.setDate(QDate.currentDate().addDays(30))
         add_client_layout.addWidget(self.date_edit_expiry, 14, 0)
 
+        # Komentarz do klienta
+        self.label = QLabel("Dodaj komentarz (opcjonalnie)", self)
+        add_client_layout.addWidget(self.label, 15, 0)
+        self.text_input_comment = QLineEdit(self)
+        self.text_input_comment.setText("Brak komentarza")
+        add_client_layout.addWidget(self.text_input_comment, 16, 0)
+
+
+        self.submit_button = QPushButton("Potwierdź dodanie")
+        add_client_layout.addWidget(self.submit_button, 17, 0)
+        self.submit_button.clicked.connect(self.submit_client)
+
+
+
+
         self.setLayout(add_client_layout)
 
 
     def add_days(self):
-        start_date = self.date_edit.date()
+        start_date = self.date_edit_start.date()
         membership_type = self.combo_box_membership.currentText()
         if membership_type == "Półroczny":
             expiry_date = start_date.addDays(180)
@@ -128,6 +148,33 @@ class AddClientPopup(QDialog):
             expiry_date = start_date.addDays(30)
         # return expiry_date
         self.date_edit_expiry.setDate(expiry_date) 
+
+    def submit_client(self):
+
+        is_rodo = self.combo_box_rodo.currentText()
+        is_underage = self.combo_box_underage.currentText()
+        first_name = self.text_input_name.text()
+        last_name = self.text_input_last_name.text()
+        membership_type = self.combo_box_membership.currentText()
+        start_date = self.date_edit_start.date().toPyDate()
+        print(f"Saving Date: {start_date}")
+        expiry_date = self.date_edit_expiry.date().toPyDate()
+        print(f"Saving Date: {expiry_date}")
+        comment = self.text_input_comment.text()
+
+
+        new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comment)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        session.add(new_client)
+        session.commit()
+        print("Date saved to database successfully!")
+
+
+
+
+
 
 
         
