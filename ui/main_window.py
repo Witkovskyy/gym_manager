@@ -10,7 +10,7 @@ class GymApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System Obsługi Siłowni")
-        self.setGeometry(100,100,600,400)
+        self.setGeometry(100,100,1400,600)
 
         menu_bar = self.menuBar()
         file_menu = menu_bar.addMenu("Plik")

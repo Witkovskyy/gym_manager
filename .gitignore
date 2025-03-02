@@ -6,4 +6,4 @@ gym_manager.db
 /models/sample_data_clients.txt
 /models/__pycache__
 /ui/__pycache__
-
+/dump
