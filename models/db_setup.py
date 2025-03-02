@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from pathlib import Path
+from PyQt6.QtCore import QDate
+from datetime import date, timedelta
 
 #Baza pod db
 Base = declarative_base()
@@ -9,17 +11,17 @@ Base = declarative_base()
 class Client(Base):
     __tablename__ = 'clients'
     client_id = Column(Integer, primary_key=True, autoincrement=True)
-    rodo = Column(String, nullable=False)
-    underage = Column(String, nullable=False)
+    rodo = Column(String, nullable=False, default="Tak")
+    underage = Column(String, nullable=False, default="Nie")
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     membership_type = Column(String, ForeignKey("memberships.membership_name"))
-    membership_start = Column(Date, nullable=True)
-    membership_expiry = Column(Date, nullable=True)
-    last_visit = Column(Date, nullable=True)
+    membership_start = Column(Date, nullable=False, default=date.today())
+    membership_expiry = Column(Date, nullable=False,default=date.today()+timedelta(days=30))
+    last_visit = Column(Date, nullable=False,default=date.today())
     comments = Column(String, nullable=True)
 
-    def __init__(self, is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comment=None):
+    def __init__(self, is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments=None):
         self.is_rodo = is_rodo
         self.is_underage = is_underage
         self.first_name = first_name
@@ -27,13 +29,18 @@ class Client(Base):
         self.membership_type = membership_type
         self.start_date = start_date
         self.expiry_date = expiry_date
-        self.comment = comment
+        self.comments = comments
 
     def __repr__(self) -> str:
         return(f"Client(id={self.client_id},first name={self.first_name}, last name={self.last_name}," 
                 f"membership type={self.membership_type},"
-                f"membership start={self.membership_start.strftime('%d-%m-%Y')},"
-                f"membership expiry={self.membership_expiry.strftime('%d-%m-%Y')})" )
+                # f"membership start={self.membership_start.strftime('%d-%m-%Y')},"
+                # f"membership expiry={self.membership_expiry.strftime('%d-%m-%Y')})" 
+                f"membership start={self.membership_start}, "
+                f"membership expiry={self.membership_expiry} "
+                f"last_visit={self.last_visit} "
+                f"comment={self.comments}"
+                )
     
 #Karnety
 class Membership(Base):

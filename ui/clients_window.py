@@ -68,7 +68,7 @@ class AddClientPopup(QDialog):
         self.combo_box_underage = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_underage, 4, 0)
         self.combo_box_underage.addItems(["Nie", "Tak"])
-        self.combo_box_rodo.setCurrentText("Nie")
+        self.combo_box_underage.setCurrentText("Nie")
 
 
         #Imię
@@ -100,6 +100,7 @@ class AddClientPopup(QDialog):
         # print(memberships)
         self.combo_box_membership.addItems(memberships)
         self.combo_box_rodo.setCurrentText(memberships[0])
+        self.combo_box_membership.currentTextChanged.connect(self.add_days)
 
 
         # Początek karnetu
@@ -124,9 +125,9 @@ class AddClientPopup(QDialog):
         # Komentarz do klienta
         self.label = QLabel("Dodaj komentarz (opcjonalnie)", self)
         add_client_layout.addWidget(self.label, 15, 0)
-        self.text_input_comment = QLineEdit(self)
-        self.text_input_comment.setText("Brak komentarza")
-        add_client_layout.addWidget(self.text_input_comment, 16, 0)
+        self.text_input_comments = QLineEdit(self)
+        self.text_input_comments.setText("Brak komentarza")
+        add_client_layout.addWidget(self.text_input_comments, 16, 0)
 
 
         self.submit_button = QPushButton("Potwierdź dodanie")
@@ -143,7 +144,9 @@ class AddClientPopup(QDialog):
         start_date = self.date_edit_start.date()
         membership_type = self.combo_box_membership.currentText()
         if membership_type == "Półroczny":
-            expiry_date = start_date.addDays(180)
+            expiry_date = start_date.addDays(182)
+        elif membership_type =="Roczny":
+            expiry_date = start_date.addDays(365)
         else:
             expiry_date = start_date.addDays(30)
         # return expiry_date
@@ -153,17 +156,22 @@ class AddClientPopup(QDialog):
 
         is_rodo = self.combo_box_rodo.currentText()
         is_underage = self.combo_box_underage.currentText()
-        first_name = self.text_input_name.text()
+        first_name = self.text_input_name.text() 
+        # if first_name==None: return False
         last_name = self.text_input_last_name.text()
+        # if last_name==None: return False
         membership_type = self.combo_box_membership.currentText()
         start_date = self.date_edit_start.date().toPyDate()
-        print(f"Saving Date: {start_date}")
+        # print(f"Saving Date: {start_date}")
+        print(f"Saving Start Date: {start_date} (Type: {type(start_date)})")
         expiry_date = self.date_edit_expiry.date().toPyDate()
-        print(f"Saving Date: {expiry_date}")
-        comment = self.text_input_comment.text()
+        # print(f"Saving Date: {expiry_date}")
+        print(f"Saving Expiry Date: {expiry_date} (Type: {type(expiry_date)})") 
+        comments = self.text_input_comments.text()
 
 
-        new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comment)
+        new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments)
+        print(f"New Client Object: {new_client.start_date}, {new_client.expiry_date}")
         Session = sessionmaker(bind=engine)
         session = Session()
 
