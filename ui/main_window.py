@@ -1,34 +1,10 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
-from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit
+from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QTableView
+from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from PyQt6.QtGui import QAction 
 from datetime import date
-from clients_window import AddClientPopup
-
-# class AddClientPopup(QDialog):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle("Dodaj klienta")
-#         self.setGeometry(200,200,400,600)
-
-#         add_client_layout = QVBoxLayout()
-
-#         self.label = QLabel("Panel dodawania klienta")
-#         add_client_layout.addWidget(self.label)
-
-#         # Inputy do wprowadzania danych klienta
-
-#         #Imię
-#         self.label = QLabel("Imię", self)
-#         self.label.move(50,50)
-
-#         self.text_input = QLineEdit(self)
-#         self.text_input.setGeometry(50, 80, 200, 30)
-
-#         #Nazwisko
-
-
-
+from clients_window import AddClientPopup, DelClientPopup
 
 class GymApp(QMainWindow):
     def __init__(self):
@@ -55,7 +31,25 @@ class GymApp(QMainWindow):
         layout.addWidget(self.button)
 
         self.button = QPushButton("Usuń klienta")
+        self.button.clicked.connect(self.show_del_client)
         layout.addWidget(self.button)
+
+
+
+        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("../gym_manager.db")
+        self.db.open()
+
+        if not self.db.open():
+            print("Database connection failed!")
+
+        self.table_view = QTableView()
+        self.model = QSqlTableModel(self, self.db)
+        self.model.setTable("clients")
+        self.model.select()
+
+        self.table_view.setModel(self.model)
+        layout.addWidget(self.table_view)
         
         container = QWidget()
         container.setLayout(layout)
@@ -65,6 +59,11 @@ class GymApp(QMainWindow):
     def show_add_client(self):
         show_popup = AddClientPopup()
         show_popup.exec()
+    
+    def show_del_client(self):
+        show_popup = DelClientPopup()
+        show_popup.exec()
+
 
 
 app = QApplication([])

@@ -1,8 +1,9 @@
 import sys
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
-from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QComboBox, QGridLayout, QDateEdit
+from PyQt6.QtWidgets import QTableView, QLineEdit, QTextEdit, QComboBox, QGridLayout, QDateEdit, QMessageBox
 from PyQt6.QtGui import QAction 
+from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
@@ -26,12 +27,8 @@ class MembershipsGetter():
         # print(membership_obj)
         session.close()
         return membership_names
-class MembershipDurationGetter():
-    def getMembershipDuration(self):
 
-
-        return True
-
+# Dodawanie klienta do bazy
 class AddClientPopup(QDialog):
     def __init__(self):
         super().__init__()
@@ -132,7 +129,7 @@ class AddClientPopup(QDialog):
 
         self.submit_button = QPushButton("Potwierdź dodanie")
         add_client_layout.addWidget(self.submit_button, 17, 0)
-        self.submit_button.clicked.connect(self.submit_client)
+        self.submit_button.clicked.connect(self.validator)
 
 
 
@@ -152,6 +149,17 @@ class AddClientPopup(QDialog):
         # return expiry_date
         self.date_edit_expiry.setDate(expiry_date) 
 
+    def validator(self):
+        first_name = self.text_input_name.text().strip()
+        last_name = self.text_input_last_name.text().strip()
+
+        if not first_name or not last_name:
+            QMessageBox.warning(self, "Input Error", "Imię i nazwisko nie mogą być puste")
+            return
+        else:
+            self.submit_client()
+
+
     def submit_client(self):
 
         is_rodo = self.combo_box_rodo.currentText()
@@ -163,15 +171,15 @@ class AddClientPopup(QDialog):
         membership_type = self.combo_box_membership.currentText()
         start_date = self.date_edit_start.date().toPyDate()
         # print(f"Saving Date: {start_date}")
-        print(f"Saving Start Date: {start_date} (Type: {type(start_date)})")
+        # print(f"Saving Start Date: {start_date} (Type: {type(start_date)})")
         expiry_date = self.date_edit_expiry.date().toPyDate()
         # print(f"Saving Date: {expiry_date}")
-        print(f"Saving Expiry Date: {expiry_date} (Type: {type(expiry_date)})") 
+        # print(f"Saving Expiry Date: {expiry_date} (Type: {type(expiry_date)})") 
         comments = self.text_input_comments.text()
 
 
         new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments)
-        print(f"New Client Object: {new_client.start_date}, {new_client.expiry_date}")
+        # print(f"New Client Object: {new_client.start_date}, {new_client.expiry_date}")
         Session = sessionmaker(bind=engine)
         session = Session()
 
@@ -179,7 +187,106 @@ class AddClientPopup(QDialog):
         session.commit()
         print("Date saved to database successfully!")
 
+        session.close()
+        self.close()
 
+# Usuwanie klienta z bazy
+class DelClientPopup(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Usuń klienta")
+        self.setGeometry(200,200,1000,500)
+
+        del_client_layout = QGridLayout()
+        del_client_layout.setSpacing(0)
+        del_client_layout.setContentsMargins(10, 10, 10, 10)
+
+
+        # Inputy do wprowadzania danych klienta
+        self.label = QLabel("Panel usuwania klienta")
+        del_client_layout.addWidget(self.label)
+        del_client_layout.addWidget(self.label, 0, 0)
+
+        self.label = QLabel("Imię klienta")
+        del_client_layout.addWidget(self.label)
+        del_client_layout.addWidget(self.label, 1, 0)
+
+        self.text_input_name = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_name)
+        del_client_layout.addWidget(self.text_input_name, 2, 0)
+
+        self.label = QLabel("Nazwisko klienta")
+        del_client_layout.addWidget(self.label)
+        del_client_layout.addWidget(self.label, 3, 0)
+
+        self.text_input_last_name = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_last_name)
+        del_client_layout.addWidget(self.text_input_last_name, 4, 0)
+
+        self.label = QLabel("Numer klienta")
+        del_client_layout.addWidget(self.label)
+        del_client_layout.addWidget(self.label, 5, 0)
+
+        self.text_input_id = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_id)
+        del_client_layout.addWidget(self.text_input_id, 6, 0)
+
+
+
+
+        self.submit_button = QPushButton("Potwierdź usunięcie")
+        del_client_layout.addWidget(self.submit_button, 17, 0)
+        self.submit_button.clicked.connect(self.delete_client)
+
+
+
+
+
+        
+        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("../gym_manager.db")
+        self.db.open()
+
+        if not self.db.open():
+            print("Database connection failed!")
+
+        self.table_view = QTableView()
+        self.model = QSqlTableModel(self, self.db)
+        self.model.setTable("clients")
+        self.model.select()
+
+        self.table_view.setModel(self.model)
+
+        del_client_layout.addWidget(self.table_view, 8, 0)
+        self.db.close()
+
+
+
+        self.setLayout(del_client_layout)
+
+
+    def delete_client(self):
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        client_name = self.text_input_name.text()
+        client_last_name = self.text_input_last_name.text()
+        client_id = self.text_input_id.text()
+
+        stmt = select(Client).where(Client.client_id == client_id)
+        client = session.scalars(stmt).first()
+
+        if client:
+            session.delete(client)
+            session.commit()
+            print(f"Client with id {client_id} deleted")
+        else:
+            print(f"Client with id {client_id} not found")
+
+        session.close()
+
+
+    
 
 
 

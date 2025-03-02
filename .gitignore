@@ -4,4 +4,6 @@ gym_manager.db
 /models/memberships.txt
 /models/sample_products.txt
 /models/sample_data_clients.txt
+/models/__pycache__
+/ui/__pycache__
 
