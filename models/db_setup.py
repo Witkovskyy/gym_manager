@@ -45,11 +45,15 @@ class Client(Base):
 #Karnety
 class Membership(Base):
     __tablename__ = "memberships"
-    membership_id = Column(Integer, nullable=False)
+    membership_id = Column(Integer, nullable=False, autoincrement=True)
     membership_name = Column(String, primary_key=True)
     membership_duration_in_days = Column(Integer, nullable=False)
     price = Column(Integer, nullable=False)
     
+    def __init__(self, membership_name, membership_duration_in_days, price):
+        self.membership_name = membership_name
+        self.membership_duration_in_days = membership_duration_in_days
+        self.price = price
 
     def __repr__(self) -> str:
         return(f"Membership(id={self.membership_id}, name={self.membership_name},duration={self.membership_duration_in_days}, price={self.price})")
@@ -57,11 +61,17 @@ class Membership(Base):
 #Produkty
 class Products(Base):
     __tablename__ = "products"
-    product_id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, primary_key=True, autoincrement=True)
     product_name = Column(String, nullable=False)
     product_price = Column(Float, nullable=False)
     product_quantity = Column(Integer, nullable=False)
     products_sold = Column(Integer, nullable=False)
+
+    def __init__(self, product_name, product_price, product_quantity, products_sold):
+        self.product_name = product_name
+        self.product_price = product_price
+        self.product_quantity = product_quantity
+        self.products_sold = products_sold
 
     def __repr__(self) -> str:
         return(f"Products(id={self.product_id}, name={self.product_name}, price={self.product_price}, quantity={self.product_quantity})")
@@ -81,18 +91,3 @@ session = Session()
 
 session.commit()
 session.close()
-
-
-
-
-# context manager
-# with Session(engine) as session:
-#     session.begin()
-#     try:
-#         session.add(object_1)
-#         session.add(object_2)
-#     except:
-#         session.rollback()
-#         raise
-#     else:
-#         session.commit()

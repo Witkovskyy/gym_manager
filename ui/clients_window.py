@@ -13,9 +13,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from models.db_setup import engine, Membership, Client
 
-
 class MembershipsGetter():
+
     def getMemberships(self):
+
         Session = sessionmaker(bind=engine)
         session = Session()
 
@@ -30,7 +31,9 @@ class MembershipsGetter():
 
 # Dodawanie klienta do bazy
 class AddClientPopup(QDialog):
+
     def __init__(self):
+
         super().__init__()
         self.setWindowTitle("Dodaj klienta")
         self.setGeometry(200,200,400,600)
@@ -50,9 +53,6 @@ class AddClientPopup(QDialog):
         self.label = QLabel("Czy jest rodo", self)
         add_client_layout.addWidget(self.label, 1, 0)
 
-        # self.label.move(50,50)
-        # self.combo_box.setGeometry(50, 50, 150, 30)
-
         self.combo_box_rodo = QComboBox(self)
         add_client_layout.addWidget(self.combo_box_rodo, 2, 0)
         self.combo_box_rodo.addItems(["Tak", "Nie"])
@@ -66,7 +66,6 @@ class AddClientPopup(QDialog):
         add_client_layout.addWidget(self.combo_box_underage, 4, 0)
         self.combo_box_underage.addItems(["Nie", "Tak"])
         self.combo_box_underage.setCurrentText("Nie")
-
 
         #Imię
         self.label = QLabel("Imię", self)
@@ -99,7 +98,6 @@ class AddClientPopup(QDialog):
         self.combo_box_rodo.setCurrentText(memberships[0])
         self.combo_box_membership.currentTextChanged.connect(self.add_days)
 
-
         # Początek karnetu
         self.label = QLabel("Data początkowa karnetu", self)
         add_client_layout.addWidget(self.label, 11, 0)
@@ -126,18 +124,16 @@ class AddClientPopup(QDialog):
         self.text_input_comments.setText("Brak komentarza")
         add_client_layout.addWidget(self.text_input_comments, 16, 0)
 
-
         self.submit_button = QPushButton("Potwierdź dodanie")
         add_client_layout.addWidget(self.submit_button, 17, 0)
         self.submit_button.clicked.connect(self.validator)
-
-
 
 
         self.setLayout(add_client_layout)
 
 
     def add_days(self):
+
         start_date = self.date_edit_start.date()
         membership_type = self.combo_box_membership.currentText()
         if membership_type == "Półroczny":
@@ -146,10 +142,10 @@ class AddClientPopup(QDialog):
             expiry_date = start_date.addDays(365)
         else:
             expiry_date = start_date.addDays(30)
-        # return expiry_date
         self.date_edit_expiry.setDate(expiry_date) 
 
     def validator(self):
+
         first_name = self.text_input_name.text().strip()
         last_name = self.text_input_last_name.text().strip()
 
@@ -158,7 +154,6 @@ class AddClientPopup(QDialog):
             return
         else:
             self.submit_client()
-
 
     def submit_client(self):
 
@@ -177,7 +172,6 @@ class AddClientPopup(QDialog):
         # print(f"Saving Expiry Date: {expiry_date} (Type: {type(expiry_date)})") 
         comments = self.text_input_comments.text()
 
-
         new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments)
         # print(f"New Client Object: {new_client.start_date}, {new_client.expiry_date}")
         Session = sessionmaker(bind=engine)
@@ -192,7 +186,9 @@ class AddClientPopup(QDialog):
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
+
     def __init__(self):
+
         super().__init__()
 
         self.setWindowTitle("Usuń klienta")
@@ -232,20 +228,12 @@ class DelClientPopup(QDialog):
         del_client_layout.addWidget(self.text_input_id)
         del_client_layout.addWidget(self.text_input_id, 6, 0)
 
-
-
-
         self.submit_button = QPushButton("Potwierdź usunięcie")
         del_client_layout.addWidget(self.submit_button, 17, 0)
         self.submit_button.clicked.connect(self.delete_client)
-
-
-
-
-
         
         self.db = QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName("../gym_manager.db")
+        self.db.setDatabaseName("gym_manager.db")
         self.db.open()
 
         if not self.db.open():
@@ -262,11 +250,10 @@ class DelClientPopup(QDialog):
         self.db.close()
 
 
-
         self.setLayout(del_client_layout)
 
-
     def delete_client(self):
+        
         Session = sessionmaker(bind=engine)
         session = Session()
         client_name = self.text_input_name.text()

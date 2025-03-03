@@ -31,12 +31,6 @@ with open("sample_products.txt", "r", encoding="utf-8") as file:
         else:
             continue
         
-
-
-
-
-       
-
 # Zapisujemy dane w bazie
 session.commit()
 session.close()

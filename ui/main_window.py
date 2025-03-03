@@ -4,9 +4,9 @@ from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QTableView
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from PyQt6.QtGui import QAction 
 from datetime import date
-from clients_window import AddClientPopup, DelClientPopup
+from ui.clients_window import AddClientPopup, DelClientPopup
 
-class GymApp(QMainWindow):
+class GymManager(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System Obsługi Siłowni")
@@ -34,10 +34,8 @@ class GymApp(QMainWindow):
         self.button.clicked.connect(self.show_del_client)
         layout.addWidget(self.button)
 
-
-
         self.db = QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName("../gym_manager.db")
+        self.db.setDatabaseName("gym_manager.db")
         self.db.open()
 
         if not self.db.open():
@@ -59,14 +57,8 @@ class GymApp(QMainWindow):
     def show_add_client(self):
         show_popup = AddClientPopup()
         show_popup.exec()
-    
+
+    # Funkcja wywołująca DelClientPopup
     def show_del_client(self):
         show_popup = DelClientPopup()
         show_popup.exec()
-
-
-
-app = QApplication([])
-window = GymApp()
-window.show()
-app.exec()
