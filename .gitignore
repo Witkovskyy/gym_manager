@@ -1,0 +1,9 @@
+# ignore dbs
+gym_manager.db
+/models/example_db.xlsx
+/models/memberships.txt
+/models/sample_products.txt
+/models/sample_data_clients.txt
+/models/__pycache__/
+/ui/__pycache__/
+/dump/
