@@ -3,10 +3,23 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,
 from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QTableView
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from PyQt6.QtGui import QAction 
+from PyQt6.QtCore import Qt
 from datetime import date
 from ui.clients_window import AddClientPopup, DelClientPopup
 
 class GymManager(QMainWindow):
+    def showClients(self, selfmodel, layout):
+        selfmodel.setTable("clients")
+        selfmodel.select()
+
+        headers = ["ID", "RODO", "Nieletni", "Imie", "Nazwisko", "Rodzaj karnetu", "Początek karnetu", "Koniec karnetu", "Ostatnia wizyta", "Komentarz"]
+
+        for i in range(len(headers)):
+            selfmodel.setHeaderData(i, Qt.Orientation.Horizontal , headers[i])
+
+        self.table_view.setModel(self.model)
+        layout.addWidget(self.table_view)
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System Obsługi Siłowni")
@@ -43,11 +56,8 @@ class GymManager(QMainWindow):
 
         self.table_view = QTableView()
         self.model = QSqlTableModel(self, self.db)
-        self.model.setTable("clients")
-        self.model.select()
-
-        self.table_view.setModel(self.model)
-        layout.addWidget(self.table_view)
+        GymManager.showClients(self, self.model, layout)
+        
         
         container = QWidget()
         container.setLayout(layout)
@@ -57,7 +67,7 @@ class GymManager(QMainWindow):
     def show_add_client(self):
         show_popup = AddClientPopup()
         show_popup.exec()
-
+        
     # Funkcja wywołująca DelClientPopup
     def show_del_client(self):
         show_popup = DelClientPopup()

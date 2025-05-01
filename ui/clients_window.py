@@ -8,6 +8,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
+from main_window import GymManager
 # parent_path = str(Path(__file__).resolve().parent.parent)
 # sys.path.append(parent_path)
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -183,6 +184,7 @@ class AddClientPopup(QDialog):
 
         session.close()
         self.close()
+        GymManager.showClients(self, self.model, layout)
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
