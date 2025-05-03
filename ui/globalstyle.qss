@@ -1,0 +1,12 @@
+QMainWindow{
+    background-color: white;
+}
+QPushButton{
+    color:black;
+    min-width: 50px;
+    max-width: 200px;
+}
+QVBoxLayout#headerContainer{
+    display: flex;
+    flex-direction: row;
+}

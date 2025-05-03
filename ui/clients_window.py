@@ -51,80 +51,80 @@ class AddClientPopup(QDialog):
         self.label = QLabel("Czy jest rodo", self)
         add_client_layout.addWidget(self.label, 1, 0)
 
-        self.combo_box_rodo = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_rodo, 2, 0)
-        self.combo_box_rodo.addItems(["Tak", "Nie"])
-        self.combo_box_rodo.setCurrentText("Tak")
+        combo_box_rodo = QComboBox(self)
+        add_client_layout.addWidget(combo_box_rodo, 2, 0)
+        combo_box_rodo.addItems(["Tak", "Nie"])
+        combo_box_rodo.setCurrentText("Tak")
 
         #Nieletni
-        self.label = QLabel("Czy klient jest nieletni", self)
-        add_client_layout.addWidget(self.label, 3, 0)
+        label = QLabel("Czy klient jest nieletni", self)
+        add_client_layout.addWidget(label, 3, 0)
 
-        self.combo_box_underage = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_underage, 4, 0)
-        self.combo_box_underage.addItems(["Nie", "Tak"])
-        self.combo_box_underage.setCurrentText("Nie")
+        combo_box_underage = QComboBox(self)
+        add_client_layout.addWidget(combo_box_underage, 4, 0)
+        combo_box_underage.addItems(["Nie", "Tak"])
+        combo_box_underage.setCurrentText("Nie")
 
         #Imię
-        self.label = QLabel("Imię", self)
-        add_client_layout.addWidget(self.label, 5, 0)
+        label = QLabel("Imię", self)
+        add_client_layout.addWidget(label, 5, 0)
 
         # self.label.move(50,50)
 
-        self.text_input_name = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input_name, 6, 0)
+        text_input_name = QLineEdit(self)
+        add_client_layout.addWidget(text_input_name, 6, 0)
         # self.text_input.setGeometry(50, 70, 200, 30)
 
         #Nazwisko
-        self.label = QLabel("Nazwisko", self)
-        add_client_layout.addWidget(self.label, 7, 0)
+        label = QLabel("Nazwisko", self)
+        add_client_layout.addWidget(label, 7, 0)
         # self.label.move(50,110)
 
-        self.text_input_last_name = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input_last_name, 8, 0)
+        text_input_last_name = QLineEdit(self)
+        add_client_layout.addWidget(text_input_last_name, 8, 0)
         # self.text_input.setGeometry(50, 130, 200, 30)
 
         #Typ karnetu
-        self.label = QLabel("Wybierz typ karnetu", self)
-        add_client_layout.addWidget(self.label, 9, 0)
+        label = QLabel("Wybierz typ karnetu", self)
+        add_client_layout.addWidget(label, 9, 0)
 
-        self.combo_box_membership = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_membership, 10, 0)
+        combo_box_membership = QComboBox(self)
+        add_client_layout.addWidget(combo_box_membership, 10, 0)
         memberships = MembershipsGetter().getMemberships()
         # print(memberships)
-        self.combo_box_membership.addItems(memberships)
-        self.combo_box_rodo.setCurrentText(memberships[0])
-        self.combo_box_membership.currentTextChanged.connect(self.add_days)
+        combo_box_membership.addItems(memberships)
+        combo_box_rodo.setCurrentText(memberships[0])
+        combo_box_membership.currentTextChanged.connect(self.add_days)
 
         # Początek karnetu
-        self.label = QLabel("Data początkowa karnetu", self)
-        add_client_layout.addWidget(self.label, 11, 0)
+        label = QLabel("Data początkowa karnetu", self)
+        add_client_layout.addWidget(label, 11, 0)
 
-        self.date_edit_start = QDateEdit()
-        self.date_edit_start.setCalendarPopup(True)
-        self.date_edit_start.setDate(QDate.currentDate())
-        add_client_layout.addWidget(self.date_edit_start, 12, 0)
-        self.date_edit_start.dateChanged.connect(self.add_days)
+        date_edit_start = QDateEdit()
+        date_edit_start.setCalendarPopup(True)
+        date_edit_start.setDate(QDate.currentDate())
+        add_client_layout.addWidget(date_edit_start, 12, 0)
+        date_edit_start.dateChanged.connect(self.add_days)
 
         # Koniec karnetu
-        self.label = QLabel("Data końcowa karnetu", self)
-        add_client_layout.addWidget(self.label, 13, 0)
+        label = QLabel("Data końcowa karnetu", self)
+        add_client_layout.addWidget(label, 13, 0)
 
-        self.date_edit_expiry = QDateEdit()
-        self.date_edit_expiry.setCalendarPopup(True)
-        self.date_edit_expiry.setDate(QDate.currentDate().addDays(30))
-        add_client_layout.addWidget(self.date_edit_expiry, 14, 0)
+        date_edit_expiry = QDateEdit()
+        date_edit_expiry.setCalendarPopup(True)
+        date_edit_expiry.setDate(QDate.currentDate().addDays(30))
+        add_client_layout.addWidget(date_edit_expiry, 14, 0)
 
         # Komentarz do klienta
-        self.label = QLabel("Dodaj komentarz (opcjonalnie)", self)
-        add_client_layout.addWidget(self.label, 15, 0)
-        self.text_input_comments = QLineEdit(self)
-        self.text_input_comments.setText("Brak komentarza")
-        add_client_layout.addWidget(self.text_input_comments, 16, 0)
+        label = QLabel("Dodaj komentarz (opcjonalnie)", self)
+        add_client_layout.addWidget(label, 15, 0)
+        text_input_comments = QLineEdit(self)
+        text_input_comments.setText("Brak komentarza")
+        add_client_layout.addWidget(text_input_comments, 16, 0)
 
-        self.submit_button = QPushButton("Potwierdź dodanie")
-        add_client_layout.addWidget(self.submit_button, 17, 0)
-        self.submit_button.clicked.connect(self.validator)
+        submit_button = QPushButton("Potwierdź dodanie")
+        add_client_layout.addWidget(submit_button, 17, 0)
+        submit_button.clicked.connect(self.validator)
 
 
         self.setLayout(add_client_layout)
@@ -192,37 +192,37 @@ class DelClientPopup(QDialog):
 
 
         # Inputy do wprowadzania danych klienta
-        self.label = QLabel("Panel usuwania klienta")
-        del_client_layout.addWidget(self.label)
-        del_client_layout.addWidget(self.label, 0, 0)
+        label = QLabel("Panel usuwania klienta")
+        del_client_layout.addWidget(label)
+        del_client_layout.addWidget(label, 0, 0)
 
-        self.label = QLabel("Imię klienta")
-        del_client_layout.addWidget(self.label)
-        del_client_layout.addWidget(self.label, 1, 0)
+        label = QLabel("Imię klienta")
+        del_client_layout.addWidget(label)
+        del_client_layout.addWidget(label, 1, 0)
 
-        self.text_input_name = QLineEdit(self)
-        del_client_layout.addWidget(self.text_input_name)
-        del_client_layout.addWidget(self.text_input_name, 2, 0)
+        text_input_name = QLineEdit(self)
+        del_client_layout.addWidget(text_input_name)
+        del_client_layout.addWidget(text_input_name, 2, 0)
 
-        self.label = QLabel("Nazwisko klienta")
-        del_client_layout.addWidget(self.label)
-        del_client_layout.addWidget(self.label, 3, 0)
+        label = QLabel("Nazwisko klienta")
+        del_client_layout.addWidget(label)
+        del_client_layout.addWidget(label, 3, 0)
 
-        self.text_input_last_name = QLineEdit(self)
-        del_client_layout.addWidget(self.text_input_last_name)
-        del_client_layout.addWidget(self.text_input_last_name, 4, 0)
+        text_input_last_name = QLineEdit(self)
+        del_client_layout.addWidget(text_input_last_name)
+        del_client_layout.addWidget(text_input_last_name, 4, 0)
 
-        self.label = QLabel("Numer klienta")
-        del_client_layout.addWidget(self.label)
-        del_client_layout.addWidget(self.label, 5, 0)
+        label = QLabel("Numer klienta")
+        del_client_layout.addWidget(label)
+        del_client_layout.addWidget(label, 5, 0)
 
-        self.text_input_id = QLineEdit(self)
-        del_client_layout.addWidget(self.text_input_id)
-        del_client_layout.addWidget(self.text_input_id, 6, 0)
+        text_input_id = QLineEdit(self)
+        del_client_layout.addWidget(text_input_id)
+        del_client_layout.addWidget(text_input_id, 6, 0)
 
-        self.submit_button = QPushButton("Potwierdź usunięcie")
-        del_client_layout.addWidget(self.submit_button, 17, 0)
-        self.submit_button.clicked.connect(self.delete_client)
+        submit_button = QPushButton("Potwierdź usunięcie")
+        del_client_layout.addWidget(submit_button, 17, 0)
+        submit_button.clicked.connect(self.delete_client)
         
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("gym_manager.db")
