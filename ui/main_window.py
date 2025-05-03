@@ -8,6 +8,9 @@ from datetime import date
 from ui.clients_window import AddClientPopup, DelClientPopup
 
 class GymManager(QMainWindow):
+    def refreshClients(self):
+        self.model.select()
+
     def showClients(self, selfmodel, layout):
         selfmodel.setTable("clients")
         selfmodel.select()
@@ -20,8 +23,7 @@ class GymManager(QMainWindow):
         self.table_view.setModel(self.model)
         layout.addWidget(self.table_view)
 
-    def __init__(self):
-        super().__init__()
+    def createMainWindow(self):
         self.setWindowTitle("System Obsługi Siłowni")
         self.setGeometry(100,100,1400,600)
 
@@ -47,6 +49,10 @@ class GymManager(QMainWindow):
         self.button.clicked.connect(self.show_del_client)
         layout.addWidget(self.button)
 
+        self.refresh_button = QPushButton("Refresh")
+        self.refresh_button.clicked.connect(self.refreshClients)
+        layout.addWidget(self.refresh_button)
+
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("gym_manager.db")
         self.db.open()
@@ -63,6 +69,10 @@ class GymManager(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+
+    
+        
+
     # Funkcja wywołująca AddClientPopup
     def show_add_client(self):
         show_popup = AddClientPopup()
@@ -72,3 +82,8 @@ class GymManager(QMainWindow):
     def show_del_client(self):
         show_popup = DelClientPopup()
         show_popup.exec()
+
+    
+    def __init__(self):
+        super().__init__()
+        self.createMainWindow()

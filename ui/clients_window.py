@@ -8,9 +8,6 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
-from main_window import GymManager
-# parent_path = str(Path(__file__).resolve().parent.parent)
-# sys.path.append(parent_path)
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from models.db_setup import engine, Membership, Client
 
@@ -161,30 +158,23 @@ class AddClientPopup(QDialog):
         is_rodo = self.combo_box_rodo.currentText()
         is_underage = self.combo_box_underage.currentText()
         first_name = self.text_input_name.text() 
-        # if first_name==None: return False
         last_name = self.text_input_last_name.text()
-        # if last_name==None: return False
         membership_type = self.combo_box_membership.currentText()
         start_date = self.date_edit_start.date().toPyDate()
-        # print(f"Saving Date: {start_date}")
-        # print(f"Saving Start Date: {start_date} (Type: {type(start_date)})")
         expiry_date = self.date_edit_expiry.date().toPyDate()
-        # print(f"Saving Date: {expiry_date}")
-        # print(f"Saving Expiry Date: {expiry_date} (Type: {type(expiry_date)})") 
         comments = self.text_input_comments.text()
 
         new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments)
-        # print(f"New Client Object: {new_client.start_date}, {new_client.expiry_date}")
         Session = sessionmaker(bind=engine)
         session = Session()
-
-        session.add(new_client)
-        session.commit()
-        print("Date saved to database successfully!")
-
+        try:
+            session.add(new_client)
+            session.commit()
+            print("Data saved to database successfully!")
+        except:
+            print("Something went wrong. Can't save client info")
         session.close()
         self.close()
-        GymManager.showClients(self, self.model, layout)
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
@@ -264,27 +254,14 @@ class DelClientPopup(QDialog):
 
         stmt = select(Client).where(Client.client_id == client_id)
         client = session.scalars(stmt).first()
-
-        if client:
-            session.delete(client)
-            session.commit()
-            print(f"Client with id {client_id} deleted")
-        else:
-            print(f"Client with id {client_id} not found")
+        try:
+            if client:
+                session.delete(client)
+                session.commit()
+                print(f"Client with id {client_id} deleted")
+            else:
+                print(f"Client with id {client_id} not found")
+        except:
+            print("Something went wrong")
 
         session.close()
-
-
-    
-
-
-
-
-
-        
-
-
-
-        
-
-
