@@ -40,23 +40,23 @@ class GymManager(QMainWindow):
 
         # Status bar z datą w lewym dolnym
         self.setStatusBar(QStatusBar(self))
-        self.statusBar().showMessage(f"{date.today().strftime("%d-%m-%Y")}")
+        self.statusBar().showMessage(f"{date.today().strftime('%d-%m-%Y')}")
 
         layout = QVBoxLayout()
 
-        button = QPushButton("Dodaj klienta")
-        button.clicked.connect(self.show_add_client)
-        layout.addWidget(button)
+        self.button = QPushButton("Dodaj klienta")
+        self.button.clicked.connect(self.show_add_client)
+        layout.addWidget(self.button)
 
-        button = QPushButton("Usuń klienta")
-        button.clicked.connect(self.show_del_client)
-        layout.addWidget(button)
+        self.button = QPushButton("Usuń klienta")
+        self.button.clicked.connect(self.show_del_client)
+        layout.addWidget(self.button)
 
-        refresh_button = QPushButton("Odśwież")
-        refresh_button.clicked.connect(self.refreshClients)
-        layout.addWidget(refresh_button)
+        self.refresh_button = QPushButton("Odśwież")
+        self.refresh_button.clicked.connect(self.refreshClients)
+        layout.addWidget(self.refresh_button)
 
-        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db = QSqlDatabase.addDatabase("QSQLITE", "main_connection")
         self.db.setDatabaseName("gym_manager.db")
         self.db.open()
 

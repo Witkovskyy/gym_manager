@@ -21,9 +21,9 @@ class Client(Base):
     last_visit = Column(Date, nullable=False,default=date.today())
     comments = Column(String, nullable=True)
 
-    def __init__(self, is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments=None):
-        self.is_rodo = is_rodo
-        self.is_underage = is_underage
+    def __init__(self, rodo, underage, first_name, last_name, membership_type, start_date, expiry_date, comments=None):
+        self.is_rodo = rodo
+        self.is_underage = underage
         self.first_name = first_name
         self.last_name = last_name
         self.membership_type = membership_type

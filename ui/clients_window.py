@@ -10,7 +10,20 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from models.db_setup import engine, Membership, Client
+from contextlib import contextmanager
 
+@contextmanager
+def get_session():
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
 class MembershipsGetter():
 
     def getMemberships(self):
@@ -26,6 +39,19 @@ class MembershipsGetter():
         # print(membership_obj)
         session.close()
         return membership_names
+    
+    def getMembershipDuration(self):
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        stmt = select(Membership)
+        membership_obj = session.scalars(stmt).all()
+        # print(membership_obj)
+        membership_duration = [m.membership_duration_in_days for m in membership_obj]
+
+        # print(membership_obj)
+        session.close()
+        return membership_duration
 
 # Dodawanie klienta do bazy
 class AddClientPopup(QDialog):
@@ -43,89 +69,91 @@ class AddClientPopup(QDialog):
 
 
         # Inputy do wprowadzania danych klienta
-        self.label = QLabel("Panel dodawania klienta")
-        add_client_layout.addWidget(self.label)
-        (self.label, 0, 0)
+        add_client_layout.addWidget(QLabel("Panel dodawania klienta"), 0, 0)
 
         #Rodo
-        self.label = QLabel("Czy jest rodo", self)
-        add_client_layout.addWidget(self.label, 1, 0)
+        self.label_is_rodo = QLabel("Czy jest rodo", self)
+        add_client_layout.addWidget(self.label_is_rodo , 1, 0)
 
-        combo_box_rodo = QComboBox(self)
-        add_client_layout.addWidget(combo_box_rodo, 2, 0)
-        combo_box_rodo.addItems(["Tak", "Nie"])
-        combo_box_rodo.setCurrentText("Tak")
+        self.combo_box_rodo = QComboBox(self)
+        add_client_layout.addWidget(self.combo_box_rodo, 2, 0)
+        self.combo_box_rodo.addItems(["Tak", "Nie"])
+        self.combo_box_rodo.setCurrentText("Tak")
 
         #Nieletni
-        label = QLabel("Czy klient jest nieletni", self)
-        add_client_layout.addWidget(label, 3, 0)
+        self.label_is_underage = QLabel("Czy klient jest nieletni", self)
+        add_client_layout.addWidget(self.label_is_underage, 3, 0)
 
-        combo_box_underage = QComboBox(self)
-        add_client_layout.addWidget(combo_box_underage, 4, 0)
-        combo_box_underage.addItems(["Nie", "Tak"])
-        combo_box_underage.setCurrentText("Nie")
+        self.combo_box_underage = QComboBox(self)
+        add_client_layout.addWidget(self.combo_box_underage, 4, 0)
+        self.combo_box_underage.addItems(["Nie", "Tak"])
+        self.combo_box_underage.setCurrentText("Nie")
 
         #Imię
-        label = QLabel("Imię", self)
-        add_client_layout.addWidget(label, 5, 0)
+        self.label_client_name = QLabel("Imię", self)
+        add_client_layout.addWidget(self.label_client_name, 5, 0)
 
         # self.label.move(50,50)
 
-        text_input_name = QLineEdit(self)
-        add_client_layout.addWidget(text_input_name, 6, 0)
+        self.text_input_name = QLineEdit(self)
+        add_client_layout.addWidget(self.text_input_name, 6, 0)
         # self.text_input.setGeometry(50, 70, 200, 30)
 
         #Nazwisko
-        label = QLabel("Nazwisko", self)
-        add_client_layout.addWidget(label, 7, 0)
+        self.label_client_last_name = QLabel("Nazwisko", self)
+        add_client_layout.addWidget(self.label_client_last_name, 7, 0)
         # self.label.move(50,110)
 
-        text_input_last_name = QLineEdit(self)
-        add_client_layout.addWidget(text_input_last_name, 8, 0)
+        self.text_input_last_name = QLineEdit(self)
+        add_client_layout.addWidget(self.text_input_last_name, 8, 0)
         # self.text_input.setGeometry(50, 130, 200, 30)
 
         #Typ karnetu
-        label = QLabel("Wybierz typ karnetu", self)
-        add_client_layout.addWidget(label, 9, 0)
+        label_membership_type = QLabel("Wybierz typ karnetu", self)
+        add_client_layout.addWidget(label_membership_type, 9, 0)
 
-        combo_box_membership = QComboBox(self)
-        add_client_layout.addWidget(combo_box_membership, 10, 0)
+        
+        self.combo_box_membership = QComboBox(self)
+        add_client_layout.addWidget(self.combo_box_membership, 10, 0)
         memberships = MembershipsGetter().getMemberships()
         # print(memberships)
-        combo_box_membership.addItems(memberships)
-        combo_box_rodo.setCurrentText(memberships[0])
-        combo_box_membership.currentTextChanged.connect(self.add_days)
+        if memberships:
+            self.combo_box_membership.addItems(memberships)
+            self.combo_box_membership.setCurrentText(memberships[0])
+            self.combo_box_membership.currentTextChanged.connect(self.add_days)
+        else:
+            QMessageBox.warning(self, "Brak danych", "Brak dostępnych karnetów!")
+            self.combo_box_membership.addItem("Brak")
 
         # Początek karnetu
-        label = QLabel("Data początkowa karnetu", self)
-        add_client_layout.addWidget(label, 11, 0)
+        label_start_date = QLabel("Data początkowa karnetu", self)
+        add_client_layout.addWidget(label_start_date, 11, 0)
 
-        date_edit_start = QDateEdit()
-        date_edit_start.setCalendarPopup(True)
-        date_edit_start.setDate(QDate.currentDate())
-        add_client_layout.addWidget(date_edit_start, 12, 0)
-        date_edit_start.dateChanged.connect(self.add_days)
+        self.date_edit_start = QDateEdit()
+        self.date_edit_start.setCalendarPopup(True)
+        self.date_edit_start.setDate(QDate.currentDate())
+        add_client_layout.addWidget(self.date_edit_start, 12, 0)
+        self.date_edit_start.dateChanged.connect(self.add_days)
 
         # Koniec karnetu
-        label = QLabel("Data końcowa karnetu", self)
-        add_client_layout.addWidget(label, 13, 0)
+        self.label_expiry_date = QLabel("Data końcowa karnetu", self)
+        add_client_layout.addWidget(self.label_expiry_date, 13, 0)
 
-        date_edit_expiry = QDateEdit()
-        date_edit_expiry.setCalendarPopup(True)
-        date_edit_expiry.setDate(QDate.currentDate().addDays(30))
-        add_client_layout.addWidget(date_edit_expiry, 14, 0)
+        self.date_edit_expiry = QDateEdit()
+        self.date_edit_expiry.setCalendarPopup(True)
+        self.date_edit_expiry.setDate(QDate.currentDate().addDays(30))
+        add_client_layout.addWidget(self.date_edit_expiry, 14, 0)
 
         # Komentarz do klienta
-        label = QLabel("Dodaj komentarz (opcjonalnie)", self)
-        add_client_layout.addWidget(label, 15, 0)
-        text_input_comments = QLineEdit(self)
-        text_input_comments.setText("Brak komentarza")
-        add_client_layout.addWidget(text_input_comments, 16, 0)
+        self.label_comment = QLabel("Dodaj komentarz (opcjonalnie)", self)
+        add_client_layout.addWidget(self.label_comment, 15, 0)
+        self.text_input_comments = QLineEdit(self)
+        self.text_input_comments.setText("Brak komentarza")
+        add_client_layout.addWidget(self.text_input_comments, 16, 0)
 
-        submit_button = QPushButton("Potwierdź dodanie")
-        add_client_layout.addWidget(submit_button, 17, 0)
-        submit_button.clicked.connect(self.validator)
-
+        self.submit_button = QPushButton("Potwierdź dodanie")
+        add_client_layout.addWidget(self.submit_button, 17, 0)
+        self.submit_button.clicked.connect(self.validator)
 
         self.setLayout(add_client_layout)
 
@@ -134,8 +162,9 @@ class AddClientPopup(QDialog):
 
         start_date = self.date_edit_start.date()
         membership_type = self.combo_box_membership.currentText()
+        
         if membership_type == "Półroczny":
-            expiry_date = start_date.addDays(182)
+            expiry_date = start_date.addDays(30)
         elif membership_type =="Roczny":
             expiry_date = start_date.addDays(365)
         else:
@@ -171,10 +200,10 @@ class AddClientPopup(QDialog):
             session.add(new_client)
             session.commit()
             print("Data saved to database successfully!")
-        except:
-            print("Something went wrong. Can't save client info")
+        except Exception as e:
+            print(f"Something went wrong. Can't save client info: {e}")
+
         session.close()
-        self.close()
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
@@ -192,76 +221,64 @@ class DelClientPopup(QDialog):
 
 
         # Inputy do wprowadzania danych klienta
-        label = QLabel("Panel usuwania klienta")
-        del_client_layout.addWidget(label)
-        del_client_layout.addWidget(label, 0, 0)
+        label_delete_client = QLabel("Panel usuwania klienta")
+        del_client_layout.addWidget(label_delete_client, 0, 0)
 
-        label = QLabel("Imię klienta")
-        del_client_layout.addWidget(label)
-        del_client_layout.addWidget(label, 1, 0)
+        label_client_name = QLabel("Imię klienta")
+        del_client_layout.addWidget(label_client_name, 1, 0)
 
-        text_input_name = QLineEdit(self)
-        del_client_layout.addWidget(text_input_name)
-        del_client_layout.addWidget(text_input_name, 2, 0)
+        self.text_input_name = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_name, 2, 0)
 
-        label = QLabel("Nazwisko klienta")
-        del_client_layout.addWidget(label)
-        del_client_layout.addWidget(label, 3, 0)
+        label_client_last_name = QLabel("Nazwisko klienta")
+        del_client_layout.addWidget(label_client_last_name, 3, 0)
 
-        text_input_last_name = QLineEdit(self)
-        del_client_layout.addWidget(text_input_last_name)
-        del_client_layout.addWidget(text_input_last_name, 4, 0)
+        self.text_input_last_name = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_last_name, 4, 0)
 
-        label = QLabel("Numer klienta")
-        del_client_layout.addWidget(label)
-        del_client_layout.addWidget(label, 5, 0)
+        label_client_number = QLabel("Numer klienta")
+        del_client_layout.addWidget(label_client_number, 5, 0)
 
-        text_input_id = QLineEdit(self)
-        del_client_layout.addWidget(text_input_id)
-        del_client_layout.addWidget(text_input_id, 6, 0)
+        self.text_input_id = QLineEdit(self)
+        del_client_layout.addWidget(self.text_input_id, 6, 0)
 
         submit_button = QPushButton("Potwierdź usunięcie")
         del_client_layout.addWidget(submit_button, 17, 0)
         submit_button.clicked.connect(self.delete_client)
         
-        self.db = QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName("gym_manager.db")
-        self.db.open()
+        db = QSqlDatabase.database("main_connection")
+        # self.db.setDatabaseName("gym_manager.db")
 
-        if not self.db.open():
+        if not db.open():
             print("Database connection failed!")
 
         self.table_view = QTableView()
-        self.model = QSqlTableModel(self, self.db)
+        self.model = QSqlTableModel(None, db)
         self.model.setTable("clients")
         self.model.select()
 
         self.table_view.setModel(self.model)
 
         del_client_layout.addWidget(self.table_view, 8, 0)
-        self.db.close()
 
 
         self.setLayout(del_client_layout)
 
     def delete_client(self):
-        
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        client_name = self.text_input_name.text()
-        client_last_name = self.text_input_last_name.text()
-        client_id = self.text_input_id.text()
-
-        stmt = select(Client).where(Client.client_id == client_id)
-        client = session.scalars(stmt).first()
         try:
+            client_id = int(self.text_input_id.text())
+        except ValueError:
+            QMessageBox.warning(self, "Błąd", "Numer klienta musi być liczbą")
+            return
+
+        with get_session() as session:
+            stmt = select(Client).where(Client.client_id == client_id)
+            client = session.scalars(stmt).first()
+
             if client:
                 session.delete(client)
-                session.commit()
+                QMessageBox.information(self, "Sukces", f"Klient o ID {client_id} został usunięty.")
                 print(f"Client with id {client_id} deleted")
             else:
+                QMessageBox.warning(self, "Nie znaleziono", f"Klient o ID {client_id} nie został znaleziony.")
                 print(f"Client with id {client_id} not found")
-        except:
-            print("Something went wrong")
-
-        session.close()
