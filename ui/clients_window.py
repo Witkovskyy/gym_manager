@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
-from PyQt6.QtWidgets import QTableView, QLineEdit, QTextEdit, QComboBox, QGridLayout, QDateEdit, QMessageBox
+from PyQt6.QtWidgets import QTableView, QLineEdit, QTextEdit, QComboBox, QGridLayout, QDateEdit, QMessageBox, QHBoxLayout, QVBoxLayout, QSizePolicy, QHeaderView
 from PyQt6.QtGui import QAction 
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from datetime import date
@@ -12,6 +12,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from models.db_setup import engine, Membership, Client
 from contextlib import contextmanager
 
+#Definicja managera do zarządzania połączeniami z bazą danych
 @contextmanager
 def get_session():
     Session = sessionmaker(bind=engine)
@@ -26,43 +27,38 @@ def get_session():
         session.close()
 class MembershipsGetter():
 
+    #Funkcja do pobierania typów karnetów z bazy
     def getMemberships(self):
+        #Pobieranie z pomocą context managera
+        with get_session() as session:
+            stmt = select(Membership)
+            membership_obj = session.scalars(stmt).all()
 
-        Session = sessionmaker(bind=engine)
-        session = Session()
+            membership_names = [m.membership_name for m in membership_obj]
 
-        stmt = select(Membership)
-        membership_obj = session.scalars(stmt).all()
-        # print(membership_obj)
-        membership_names = [m.membership_name for m in membership_obj]
-
-        # print(membership_obj)
-        session.close()
-        return membership_names
-    
+            return membership_names
+        
+    #Funkcja do pobierania czasów trwania karnetów
     def getMembershipDuration(self):
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        #Pobieranie z pomocą context managera
+        with get_session() as session:
+            stmt = select(Membership)
+            membership_obj = session.scalars(stmt).all()
 
-        stmt = select(Membership)
-        membership_obj = session.scalars(stmt).all()
-        # print(membership_obj)
-        membership_duration = [m.membership_duration_in_days for m in membership_obj]
+            membership_duration = [m.membership_duration_in_days for m in membership_obj]
 
-        # print(membership_obj)
-        session.close()
-        return membership_duration
+            return membership_duration
 
 # Dodawanie klienta do bazy
 class AddClientPopup(QDialog):
-
+    #Init
     def __init__(self):
-
+        #Początkowe parametry okna
         super().__init__()
         self.setWindowTitle("Dodaj klienta")
         self.setGeometry(200,200,400,600)
 
-        # add_client_layout = QVBoxLayout()
+        #Definicja układu okna
         add_client_layout = QGridLayout()
         add_client_layout.setSpacing(0)
         add_client_layout.setContentsMargins(10, 10, 10, 10)
@@ -73,50 +69,45 @@ class AddClientPopup(QDialog):
 
         #Rodo
         self.label_is_rodo = QLabel("Czy jest rodo", self)
-        add_client_layout.addWidget(self.label_is_rodo , 1, 0)
+        add_client_layout.addWidget(self.label_is_rodo , 1, 0, 1, 2)
 
         self.combo_box_rodo = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_rodo, 2, 0)
+        add_client_layout.addWidget(self.combo_box_rodo, 2, 0, 1, 2)
         self.combo_box_rodo.addItems(["Tak", "Nie"])
         self.combo_box_rodo.setCurrentText("Tak")
 
         #Nieletni
         self.label_is_underage = QLabel("Czy klient jest nieletni", self)
-        add_client_layout.addWidget(self.label_is_underage, 3, 0)
+        add_client_layout.addWidget(self.label_is_underage, 3, 0, 1, 2)
 
         self.combo_box_underage = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_underage, 4, 0)
+        add_client_layout.addWidget(self.combo_box_underage, 4, 0, 1, 2)
         self.combo_box_underage.addItems(["Nie", "Tak"])
         self.combo_box_underage.setCurrentText("Nie")
 
         #Imię
         self.label_client_name = QLabel("Imię", self)
-        add_client_layout.addWidget(self.label_client_name, 5, 0)
-
-        # self.label.move(50,50)
+        add_client_layout.addWidget(self.label_client_name, 5, 0, 1, 2)
 
         self.text_input_name = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input_name, 6, 0)
-        # self.text_input.setGeometry(50, 70, 200, 30)
+        add_client_layout.addWidget(self.text_input_name, 6, 0, 1, 2)
 
         #Nazwisko
         self.label_client_last_name = QLabel("Nazwisko", self)
-        add_client_layout.addWidget(self.label_client_last_name, 7, 0)
-        # self.label.move(50,110)
+        add_client_layout.addWidget(self.label_client_last_name, 7, 0, 1, 2)
 
         self.text_input_last_name = QLineEdit(self)
-        add_client_layout.addWidget(self.text_input_last_name, 8, 0)
-        # self.text_input.setGeometry(50, 130, 200, 30)
+        add_client_layout.addWidget(self.text_input_last_name, 8, 0, 1, 2)
 
         #Typ karnetu
         label_membership_type = QLabel("Wybierz typ karnetu", self)
-        add_client_layout.addWidget(label_membership_type, 9, 0)
+        add_client_layout.addWidget(label_membership_type, 9, 0, 1, 2)
 
-        
         self.combo_box_membership = QComboBox(self)
-        add_client_layout.addWidget(self.combo_box_membership, 10, 0)
+        add_client_layout.addWidget(self.combo_box_membership, 10, 0, 1, 2)
         memberships = MembershipsGetter().getMemberships()
-        # print(memberships)
+
+        #Dodawanie karnetów do pola wyboru
         if memberships:
             self.combo_box_membership.addItems(memberships)
             self.combo_box_membership.setCurrentText(memberships[0])
@@ -127,37 +118,43 @@ class AddClientPopup(QDialog):
 
         # Początek karnetu
         label_start_date = QLabel("Data początkowa karnetu", self)
-        add_client_layout.addWidget(label_start_date, 11, 0)
+        add_client_layout.addWidget(label_start_date, 11, 0, 1, 2)
 
         self.date_edit_start = QDateEdit()
         self.date_edit_start.setCalendarPopup(True)
         self.date_edit_start.setDate(QDate.currentDate())
-        add_client_layout.addWidget(self.date_edit_start, 12, 0)
+        add_client_layout.addWidget(self.date_edit_start, 12, 0, 1, 2)
         self.date_edit_start.dateChanged.connect(self.add_days)
 
         # Koniec karnetu
         self.label_expiry_date = QLabel("Data końcowa karnetu", self)
-        add_client_layout.addWidget(self.label_expiry_date, 13, 0)
+        add_client_layout.addWidget(self.label_expiry_date, 13, 0, 1, 2)
 
         self.date_edit_expiry = QDateEdit()
         self.date_edit_expiry.setCalendarPopup(True)
         self.date_edit_expiry.setDate(QDate.currentDate().addDays(30))
-        add_client_layout.addWidget(self.date_edit_expiry, 14, 0)
+        add_client_layout.addWidget(self.date_edit_expiry, 14, 0, 1, 2)
 
         # Komentarz do klienta
         self.label_comment = QLabel("Dodaj komentarz (opcjonalnie)", self)
-        add_client_layout.addWidget(self.label_comment, 15, 0)
+        add_client_layout.addWidget(self.label_comment, 15, 0, 1, 2)
         self.text_input_comments = QLineEdit(self)
         self.text_input_comments.setText("Brak komentarza")
-        add_client_layout.addWidget(self.text_input_comments, 16, 0)
+        add_client_layout.addWidget(self.text_input_comments, 16, 0, 1, 2)
 
+        #Button do potwierdzania
         self.submit_button = QPushButton("Potwierdź dodanie")
         add_client_layout.addWidget(self.submit_button, 17, 0)
         self.submit_button.clicked.connect(self.validator)
 
+        #Button do anulowania
+        self.cancel_button = QPushButton("Anuluj")
+        add_client_layout.addWidget(self.cancel_button, 17, 1)
+        self.cancel_button.clicked.connect(self.close)
+
         self.setLayout(add_client_layout)
 
-
+    #Funkcja dodawania dni to pola wyboru
     def add_days(self):
 
         start_date = self.date_edit_start.date()
@@ -171,8 +168,8 @@ class AddClientPopup(QDialog):
             expiry_date = start_date.addDays(30)
         self.date_edit_expiry.setDate(expiry_date) 
 
+    #Prosty walidator do dodawania klientow
     def validator(self):
-
         first_name = self.text_input_name.text().strip()
         last_name = self.text_input_last_name.text().strip()
 
@@ -182,6 +179,7 @@ class AddClientPopup(QDialog):
         else:
             self.submit_client()
 
+    #Funkcja do dodawania klienta do bazy
     def submit_client(self):
 
         is_rodo = self.combo_box_rodo.currentText()
@@ -194,16 +192,13 @@ class AddClientPopup(QDialog):
         comments = self.text_input_comments.text()
 
         new_client = Client(is_rodo, is_underage, first_name, last_name, membership_type, start_date, expiry_date, comments)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        try:
-            session.add(new_client)
-            session.commit()
-            print("Data saved to database successfully!")
-        except Exception as e:
-            print(f"Something went wrong. Can't save client info: {e}")
 
-        session.close()
+        with get_session() as session:
+            try:
+                session.add(new_client)
+                print("Data saved to database successfully!")
+            except Exception as e:
+                print(f"Something went wrong. Can't save client info: {e}")
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
@@ -211,14 +206,13 @@ class DelClientPopup(QDialog):
     def __init__(self):
 
         super().__init__()
-
+        #Początkowe parametry okna
         self.setWindowTitle("Usuń klienta")
         self.setGeometry(200,200,1000,500)
-
+        #Układ okna
         del_client_layout = QGridLayout()
         del_client_layout.setSpacing(0)
         del_client_layout.setContentsMargins(10, 10, 10, 10)
-
 
         # Inputy do wprowadzania danych klienta
         label_delete_client = QLabel("Panel usuwania klienta")
@@ -242,28 +236,43 @@ class DelClientPopup(QDialog):
         self.text_input_id = QLineEdit(self)
         del_client_layout.addWidget(self.text_input_id, 6, 0)
 
+        #Kontener na  przyciski
+        button_container = QHBoxLayout()
+
         submit_button = QPushButton("Potwierdź usunięcie")
-        del_client_layout.addWidget(submit_button, 17, 0)
+        button_container.addWidget(submit_button)
         submit_button.clicked.connect(self.delete_client)
+
+        cancel_button = QPushButton("Anuluj")
+        button_container.addWidget(cancel_button)
+        cancel_button.clicked.connect(self.close)
+
+        button_widget = QWidget()
+        button_widget.setLayout(button_container)
+
+        del_client_layout.addWidget(button_widget, 17, 0)
         
+        #Łączenie z bazą
         db = QSqlDatabase.database("main_connection")
-        # self.db.setDatabaseName("gym_manager.db")
 
         if not db.open():
             print("Database connection failed!")
 
+        #Więcej parametrów układu
         self.table_view = QTableView()
+        self.table_view.horizontalHeader().setStretchLastSection(True)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+        #Wyświetlanie klientów
         self.model = QSqlTableModel(None, db)
         self.model.setTable("clients")
         self.model.select()
 
         self.table_view.setModel(self.model)
-
         del_client_layout.addWidget(self.table_view, 8, 0)
-
-
         self.setLayout(del_client_layout)
 
+    #Funkcja do usuwania klientów
     def delete_client(self):
         try:
             client_id = int(self.text_input_id.text())

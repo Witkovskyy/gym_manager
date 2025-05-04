@@ -1,8 +1,8 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QStatusBar, QDialog, QLabel
-from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QTableView
+from PyQt6.QtWidgets import QSpinBox, QLineEdit, QTextEdit, QTableView, QHeaderView
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction 
 from PyQt6.QtCore import Qt, QTimer
 from datetime import date
 from ui.clients_window import AddClientPopup, DelClientPopup
@@ -20,7 +20,11 @@ class GymManager(QMainWindow):
         for i in range(len(headers)):
             selfmodel.setHeaderData(i, Qt.Orientation.Horizontal , headers[i])
 
+
         self.table_view.setModel(self.model)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         layout.addWidget(self.table_view)
 
         self.refresh_timer = QTimer(self)
@@ -28,12 +32,15 @@ class GymManager(QMainWindow):
         self.refresh_timer.start(5000) 
 
     def createMainWindow(self):
+        #Parametry okna
         self.setWindowTitle("System Obsługi Siłowni")
         self.setGeometry(100,100,1400,600)
 
+        #Menu bar lewy góeny róg
         menu_bar = self.menuBar()
         file_menu = menu_bar.addMenu("Plik")
 
+        #Akcja w menu
         exit_action = QAction("Zamknij", self)
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
@@ -42,8 +49,10 @@ class GymManager(QMainWindow):
         self.setStatusBar(QStatusBar(self))
         self.statusBar().showMessage(f"{date.today().strftime('%d-%m-%Y')}")
 
+        #Tworzenie układu strony
         layout = QVBoxLayout()
 
+        #Definicje przycisków, przypisywanie im funkcji i dodawanie do układu strony
         self.button = QPushButton("Dodaj klienta")
         self.button.clicked.connect(self.show_add_client)
         layout.addWidget(self.button)
@@ -56,6 +65,7 @@ class GymManager(QMainWindow):
         self.refresh_button.clicked.connect(self.refreshClients)
         layout.addWidget(self.refresh_button)
 
+        #Łączenie z bazą danych
         self.db = QSqlDatabase.addDatabase("QSQLITE", "main_connection")
         self.db.setDatabaseName("gym_manager.db")
         self.db.open()
@@ -63,15 +73,15 @@ class GymManager(QMainWindow):
         if not self.db.open():
             print("Database connection failed!")
 
+        #Pokazywanie klientów
         self.table_view = QTableView()
         self.model = QSqlTableModel(self, self.db)
         GymManager.showClients(self, self.model, layout)
         
+        #Dodanie końcowego kontenera
         container = QWidget(self)
         container.setLayout(layout)
         self.setCentralWidget(container)
-
-       
 
     # Funkcja wywołująca AddClientPopup
     def show_add_client(self):
@@ -82,8 +92,6 @@ class GymManager(QMainWindow):
     def show_del_client(self):
         show_popup = DelClientPopup()
         show_popup.exec()
-
-    
 
     #Init
     def __init__(self):
