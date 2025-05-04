@@ -31,7 +31,7 @@ Entires in databases are randomly generated.
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/gym_manager.git
+git clone https://github.com/witkovskyy/gym_manager.git
 cd gym_manager
 ```
 
@@ -104,7 +104,7 @@ gym_manager/
 
 ## 👤 Author
 
-- **Your Name** — [@yourhandle](https://github.com/yourhandle)
+- **Witkovskyy** — [@witkovskyy](https://github.com/witkovskyy)
 
 ---
 
