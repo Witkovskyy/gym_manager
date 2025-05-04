@@ -25,6 +25,9 @@ def get_session():
         raise e
     finally:
         session.close()
+
+
+
 class MembershipsGetter():
 
     #Funkcja do pobierania typów karnetów z bazy
@@ -51,6 +54,14 @@ class MembershipsGetter():
 
 # Dodawanie klienta do bazy
 class AddClientPopup(QDialog):
+    #Handlers
+    def refreshClients(self):
+        self.model.select()
+
+    def handleCancel(self):
+        self.refreshClients()
+        self.close()
+
     #Init
     def __init__(self):
         #Początkowe parametry okna
@@ -150,7 +161,7 @@ class AddClientPopup(QDialog):
         #Button do anulowania
         self.cancel_button = QPushButton("Anuluj")
         add_client_layout.addWidget(self.cancel_button, 17, 1)
-        self.cancel_button.clicked.connect(self.close)
+        self.cancel_button.clicked.connect(self.handleCancel)
 
         self.setLayout(add_client_layout)
 
@@ -202,6 +213,13 @@ class AddClientPopup(QDialog):
 
 # Usuwanie klienta z bazy
 class DelClientPopup(QDialog):
+    #Handlers
+    def refreshClients(self):
+        self.model.select()
+
+    def handleCancel(self):
+        self.refreshClients()
+        self.close()
 
     def __init__(self):
 
@@ -245,7 +263,7 @@ class DelClientPopup(QDialog):
 
         cancel_button = QPushButton("Anuluj")
         button_container.addWidget(cancel_button)
-        cancel_button.clicked.connect(self.close)
+        cancel_button.clicked.connect(self.handleCancel)
 
         button_widget = QWidget()
         button_widget.setLayout(button_container)

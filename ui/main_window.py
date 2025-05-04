@@ -27,9 +27,9 @@ class GymManager(QMainWindow):
         self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         layout.addWidget(self.table_view)
 
-        self.refresh_timer = QTimer(self)
-        self.refresh_timer.timeout.connect(self.refreshClients)
-        self.refresh_timer.start(5000) 
+        # self.refresh_timer = QTimer(self)
+        # self.refresh_timer.timeout.connect(self.refreshClients)
+        # self.refresh_timer.start(5000) 
 
     def createMainWindow(self):
         #Parametry okna
